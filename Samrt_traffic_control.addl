@@ -1,0 +1,91 @@
+package traffic_control
+public
+	
+system trafficSystem
+
+end trafficSystem;
+
+system implementation trafficSystem.with_devices
+	subcomponents
+		this_traffic_control_unite: device traffic_control;
+		this_motion_detector_unite: device motion_detector;
+		this_traffic_light_unite: device traffic_light;
+		this_optimizer: process optimizer;
+		this_process2: processor CPU.impl;
+		this_bus: bus vme;
+		this_ram: memory ram;
+	connections
+		traffic_control_con: port this_traffic_control_unite.traffic_control_out -> this_optimizer.receive_pulse;
+		motion_detector_con: port this_motion_detector_unite.motion_detector_out -> this_optimizer.get_angle;
+		pulse_con: port this_optimizer.send_pulse -> this_traffic_control_unite.traffic_control_in;
+		traffic_light_con: port this_optimizer.to_traffic_light -> this_traffic_light_unite.traffic_light_in;
+		traffic_control_bus: bus access this_bus -> this_traffic_control_unite.VME;
+		motion_detector_bus: bus access this_bus -> this_motion_detector_unite.VME;
+		traffic_light_bus: bus access this_bus -> this_traffic_light_unite.VME;
+		cpu_bus: bus access this_bus -> this_process2.VME;
+		ram_bus: bus access this_bus -> this_process2.VME;
+			
+end radarSystem.with_devices;
+
+process optimizer
+	features
+		to_traffic_light: out event port;
+		send_pulse: out event port;
+		receive_pulse: in data port;
+		get_angle: in data port;
+end optimizer;
+
+process implementation optimizer.with_threads
+ 
+end optimizer.with_threads;
+
+processor CPU
+	features
+		VME: requires bus access VME;
+end CPU;
+
+processor implementation CPU.impl
+	subcomponents
+		this_ram: memory ram;
+end CPU.impl;
+
+bus vme
+end vme;
+
+bus implementation vme.impl
+end vme.impl;
+
+memory ram
+	features
+		VME: requires bus access VME;
+end ram;
+
+device traffic_control
+	features
+		traffic_control_in: in event port;
+		traffic_control_out: out data port;
+		VME: requires bus access VME;
+end traffic_control;
+
+device implementation traffic_control.impl	
+end traffic_control.impl;
+
+device motion_detector
+	features
+		motion_detector_out: out data port;
+		VME: requires bus access VME;	
+end motion_detector;
+
+device implementation motion_detector.impl	
+end motion_detector.impl;
+
+device traffic_light
+	features
+		traffic_light_in: in event port;
+		VME: requires bus access VME;
+end traffic_light;
+
+device implementation traffic_light.impl	
+end traffic_light.impl;
+
+END traffic_control;
